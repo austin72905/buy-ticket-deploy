@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "buy-ticket.fullname" . }}-config
+  labels:
+    {{- include "buy-ticket.labels" . | nindent 4 }}
+data:
+  APP_ENV: {{ .Values.app.env | quote }}
+  SERVER_ADDR: {{ .Values.app.serverAddr | quote }}
+  PPROF_ENABLED: {{ .Values.app.pprofEnabled | quote }}
+  QUEUE_STORE: {{ .Values.queue.store | quote }}
+  QUEUE_RELEASE_LIMIT: {{ .Values.queue.releaseLimit | quote }}
+  QUEUE_JOIN_MAX_IN_FLIGHT: {{ .Values.queue.join.maxInFlight | quote }}
+  QUEUE_JOIN_RETRY_AFTER_SECONDS: {{ .Values.queue.join.retryAfterSeconds | quote }}
+  ORDER_EXPIRE_BATCH_SIZE: {{ .Values.order.expireBatchSize | quote }}
+  ORDER_PAYMENT_TTL_MINUTES: {{ .Values.order.paymentTTLMinutes | quote }}
+  SESSION_TTL_HOURS: {{ .Values.session.ttlHours | quote }}
+  POSTGRES_DSN: {{ .Values.postgres.dsn | quote }}
+  POSTGRES_POOL_MAX_IDLE_CONNS: {{ .Values.postgres.pool.maxIdleConns | quote }}
+  POSTGRES_POOL_MAX_OPEN_CONNS: {{ .Values.postgres.pool.maxOpenConns | quote }}
+  POSTGRES_CONN_MAX_IDLE_TIME: {{ .Values.postgres.pool.connMaxIdleTime | quote }}
+  POSTGRES_CONN_MAX_LIFETIME: {{ .Values.postgres.pool.connMaxLifetime | quote }}
+  REDIS_ADDR: {{ .Values.redis.addr | quote }}
+  REDIS_DB: {{ .Values.redis.db | quote }}
+  PAYMENT_MOCK_BASE_URL: {{ .Values.payment.mock.baseURL | quote }}
+  PAYMENT_MOCK_BACKUP_BASE_URL: {{ .Values.payment.mock.backupBaseURL | quote }}
+  PAYMENT_MOCK_CALLBACK_URL: {{ .Values.payment.mock.callbackURL | quote }}
+  PAYMENT_MOCK_TIMEOUT_SECONDS: {{ .Values.payment.mock.timeoutSeconds | quote }}
+  PAYMENT_BREAKER_ENABLED: {{ .Values.payment.breaker.enabled | quote }}
+  PAYMENT_BREAKER_CONSECUTIVE_FAILURES: {{ .Values.payment.breaker.consecutiveFailures | quote }}
+  PAYMENT_BREAKER_OPEN_TIMEOUT_SECONDS: {{ .Values.payment.breaker.openTimeoutSeconds | quote }}
+  PAYMENT_BREAKER_HALF_OPEN_MAX_REQUESTS: {{ .Values.payment.breaker.halfOpenMaxRequests | quote }}
+  PAYMENT_RECONCILE_ENABLED: {{ .Values.payment.reconcile.enabled | quote }}
+  PAYMENT_RECONCILE_BATCH_SIZE: {{ .Values.payment.reconcile.batchSize | quote }}
+  PAYMENT_RECONCILE_DELAY_SECONDS: {{ .Values.payment.reconcile.delaySeconds | quote }}
+  PAYMENT_RECONCILE_RETRY_AFTER_SECONDS: {{ .Values.payment.reconcile.retryAfterSeconds | quote }}
+  PAYMENT_RECONCILE_MAX_ATTEMPTS: {{ .Values.payment.reconcile.maxAttempts | quote }}
+  OUTBOX_PUBLISH_ENABLED: {{ .Values.outbox.publish.enabled | quote }}
+  OUTBOX_PUBLISH_BATCH_SIZE: {{ .Values.outbox.publish.batchSize | quote }}
+  OUTBOX_PUBLISH_RETRY_AFTER_SECONDS: {{ .Values.outbox.publish.retryAfterSeconds | quote }}

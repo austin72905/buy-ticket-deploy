@@ -1,0 +1,133 @@
+api:
+  replicaCount: 1
+
+image:
+  repository: buy-ticket
+  tag: local
+  pullPolicy: IfNotPresent
+
+web:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: buy-ticket-web
+    tag: local
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+  resources: {}
+  probes:
+    readiness:
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    liveness:
+      initialDelaySeconds: 10
+      periodSeconds: 20
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  className: traefik
+  annotations: {}
+  hosts:
+    - host: buy-ticket.local
+    - host: admin.buy-ticket.local
+  web:
+    path: /
+    pathType: Prefix
+  api:
+    path: /api
+    pathType: Prefix
+    stripPrefix: true
+    stripPrefixMiddleware:
+      apiVersion: traefik.io/v1alpha1
+  tls: []
+
+app:
+  env: dev
+  serverAddr: ":8080"
+  pprofEnabled: false
+
+queue:
+  store: redis
+  releaseLimit: 100
+  join:
+    maxInFlight: 500
+    retryAfterSeconds: 1
+
+order:
+  expireBatchSize: 100
+  paymentTTLMinutes: 10
+
+session:
+  ttlHours: 168
+
+postgres:
+  dsn: "postgres://postgres:postgres@host.k3d.internal:5432/buy_ticket?sslmode=disable"
+  pool:
+    maxIdleConns: 5
+    maxOpenConns: 20
+    connMaxIdleTime: 30m
+    connMaxLifetime: 2h
+
+redis:
+  addr: "host.k3d.internal:6379"
+  db: 0
+  password: ""
+
+payment:
+  mock:
+    merchantID: "3002607"
+    hashKey: pwFHCqoQZGmho4w6
+    hashIV: EkRm7iFT261dpevs
+    baseURL: "http://host.k3d.internal:8081"
+    backupBaseURL: ""
+    callbackURL: "http://buy-ticket.local/payments/provider/ecpay/callback"
+    timeoutSeconds: 3
+  breaker:
+    enabled: true
+    consecutiveFailures: 5
+    openTimeoutSeconds: 30
+    halfOpenMaxRequests: 1
+  reconcile:
+    enabled: true
+    batchSize: 100
+    delaySeconds: 120
+    retryAfterSeconds: 30
+    maxAttempts: 5
+
+outbox:
+  publish:
+    enabled: true
+    batchSize: 100
+    retryAfterSeconds: 30
+
+podAnnotations: {}
+podLabels: {}
+
+resources: {}
+
+scheduler:
+  enabled: true
+  replicaCount: 1
+  resources: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+probes:
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  liveness:
+    initialDelaySeconds: 10
+    periodSeconds: 20
