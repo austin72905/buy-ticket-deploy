@@ -1,0 +1,39 @@
+{{- if .Values.migration.enabled }}
+{{- $imageTag := required "image.tag is required; select a backend tag in deploy-ui before deploying" .Values.image.tag -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "buy-ticket.fullname" . }}-migrate
+  labels:
+    {{- include "buy-ticket.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: {{ .Values.migration.backoffLimit }}
+  activeDeadlineSeconds: {{ .Values.migration.activeDeadlineSeconds }}
+  template:
+    metadata:
+      labels:
+        {{- include "buy-ticket.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: migration
+    spec:
+      restartPolicy: OnFailure
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: migrate
+          image: "{{ .Values.migration.image.repository }}:{{ default $imageTag .Values.migration.image.tag }}"
+          imagePullPolicy: {{ .Values.migration.image.pullPolicy }}
+          args:
+            - -database=$(POSTGRES_DSN)
+            - {{ .Values.migration.command | quote }}
+          env:
+            - name: POSTGRES_DSN
+              value: {{ .Values.postgres.dsn | quote }}
+          resources:
+            {{- toYaml .Values.migration.resources | nindent 12 }}
+{{- end }}

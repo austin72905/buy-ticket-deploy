@@ -1,5 +1,10 @@
 api:
   replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
 
 image:
   repository: buy-ticket
@@ -113,7 +118,13 @@ outbox:
 podAnnotations: {}
 podLabels: {}
 
-resources: {}
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
 
 scheduler:
   enabled: true
@@ -131,3 +142,15 @@ probes:
   liveness:
     initialDelaySeconds: 10
     periodSeconds: 20
+
+
+migration:
+  enabled: true
+  image:
+    repository: ghcr.io/austin72905/buy-ticket-migrate
+    tag: ""
+    pullPolicy: IfNotPresent
+  command: up
+  backoffLimit: 3
+  activeDeadlineSeconds: 300
+  resources: {}

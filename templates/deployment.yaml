@@ -1,3 +1,4 @@
+{{- $imageTag := required "image.tag is required; select a backend tag in deploy-ui before deploying" .Values.image.tag -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,7 +7,9 @@ metadata:
     {{- include "buy-ticket.labels" . | nindent 4 }}
     app.kubernetes.io/component: api
 spec:
+  {{- if not .Values.api.autoscaling.enabled }}
   replicas: {{ .Values.api.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "buy-ticket.selectorLabels" . | nindent 6 }}
@@ -30,7 +33,7 @@ spec:
       {{- end }}
       containers:
         - name: {{ include "buy-ticket.name" . }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ $imageTag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -109,7 +112,7 @@ spec:
       {{- end }}
       containers:
         - name: {{ include "buy-ticket.name" . }}-scheduler
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ $imageTag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: APP_ROLE
