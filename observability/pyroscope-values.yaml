@@ -1,0 +1,27 @@
+# Values for the official Grafana Pyroscope Helm chart.
+# Chart: grafana/pyroscope
+# Usage:
+#   helm upgrade --install pyroscope grafana/pyroscope -n observability --create-namespace -f observability/pyroscope-values.yaml
+
+# Deploy only Pyroscope here. Alloy is deployed separately with observability/alloy-values.yaml.
+alloy:
+  enabled: false
+agent:
+  enabled: false
+minio:
+  enabled: false
+
+pyroscope:
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 4040
+  persistence:
+    enabled: true
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
